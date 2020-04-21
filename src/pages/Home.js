@@ -1,7 +1,7 @@
 import React from "react";
 import { getPcs } from "../ExQueries/Queries";
 import { useQuery } from "react-apollo";
-import { Typography, Box, makeStyles } from "@material-ui/core";
+import { Typography, Box, makeStyles, Button, Grid } from "@material-ui/core";
 import { Alert } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Home() {
   const classes = useStyles;
-  const { data, loading, error } = useQuery(getPcs);
+  const { data, loading, error, refetch } = useQuery(getPcs);
   if (loading)
     return (
       <div>
@@ -28,6 +28,16 @@ function Home() {
                   System Status : <strong>Busy!</strong>
                 </div>
               </Alert>
+              <Grid
+                container
+                alignItems="flex-start"
+                justify="center"
+                direction="row"
+              >
+                <Button color="primary" onClick={() => refetch(getPcs)}>
+                  Refetch!
+                </Button>
+              </Grid>
             </div>
           </Box>
         </Box>
@@ -46,6 +56,16 @@ function Home() {
                   System Status : <strong>Offline!</strong>
                 </div>
               </Alert>
+              <Grid
+                container
+                alignItems="flex-start"
+                justify="center"
+                direction="row"
+              >
+                <Button color="primary" onClick={() => refetch(getPcs)}>
+                  Refetch!
+                </Button>
+              </Grid>
             </div>
           </Box>
         </Box>
@@ -63,6 +83,16 @@ function Home() {
                 System Status : <strong>All Good!</strong>
               </div>
             </Alert>
+            <Grid
+              container
+              alignItems="flex-start"
+              justify="center"
+              direction="row"
+            >
+              <Button color="primary" onClick={() => refetch(getPcs)}>
+                Refetch!
+              </Button>
+            </Grid>
           </div>
         </Box>
       </Box>
