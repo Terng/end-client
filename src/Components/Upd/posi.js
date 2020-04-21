@@ -10,11 +10,8 @@ import {
   Select,
   MenuItem,
   Grid,
-  Box,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
-
-import { useHistory } from "react-router-dom";
 
 import { getPcs } from "../../ExQueries/Queries";
 import Skeleton from "../Skeleton";
