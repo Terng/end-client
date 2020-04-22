@@ -6,6 +6,7 @@ import {
   TextField,
   Button,
   Grid,
+  Box,
 } from "@material-ui/core";
 import { createPosi, getposition } from "../ExQueries/Queries";
 import Dialog from "@material-ui/core/Dialog";
@@ -13,6 +14,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import { Alert, AlertTitle } from "@material-ui/lab";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,6 +31,8 @@ function Add() {
     name: "",
     floor: "",
   });
+  const [errors, setErrors] = useState({});
+
   const onChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
   };
@@ -44,6 +48,9 @@ function Add() {
   const [addPosi] = useMutation(createPosi, {
     update(proxy, result) {
       console.log(result);
+    },
+    onError(err) {
+      setErrors(err.graphQLErrors[0].extensions.exception.errors);
     },
     variables: values,
     refetchQueries: [{ query: getposition }],
@@ -84,6 +91,7 @@ function Add() {
                     placeholder="Name"
                     name="name"
                     value={values.name}
+                    error={errors.name ? true : false}
                     onChange={onChange}
                   />
                 </FormControl>
@@ -110,6 +118,20 @@ function Add() {
                   </Button>
                 </FormControl>
               </form>
+              {Object.keys(errors).length > 0 && (
+                <Alert severity="error">
+                  <AlertTitle>Error</AlertTitle>
+                  <div>
+                    {Object.values(errors).map((value) => (
+                      <Box display="flex" justifyContent="flex-start">
+                        <Box>
+                          <li key={value}>{value}</li>
+                        </Box>
+                      </Box>
+                    ))}
+                  </div>
+                </Alert>
+              )}
             </Grid>
           </DialogContentText>
         </DialogContent>
