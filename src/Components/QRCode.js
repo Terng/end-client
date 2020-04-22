@@ -33,7 +33,7 @@ function GenQR({ pcId }) {
       .replace("image/png", "image/octet-stream");
     let downloadLink = document.createElement("a");
     downloadLink.href = pngUrl;
-    downloadLink.download = data.getPc.name;
+    downloadLink.download = data.getPc.name + ".png";
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
@@ -65,7 +65,7 @@ function GenQR({ pcId }) {
           <Box display="flex" justifyContent="center">
             <Box p={1}>
               <Button onClick={downloadQR} color="primary">
-                Download QR
+                Download
               </Button>
             </Box>
           </Box>
