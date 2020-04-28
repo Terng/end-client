@@ -200,7 +200,7 @@ function ShowPc(props) {
           </Box>
         </Box>
       </Container>
-      <Delete pcId={data.getPc.id} />
+      {/* <Delete pcId={data.getPc.id} /> */}
     </React.Fragment>
   );
 }
