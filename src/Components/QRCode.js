@@ -57,7 +57,7 @@ function GenQR({ pcId }) {
           <DialogContentText id="alert-dialog-description">
             <QRCode
               size={512}
-              value={data.getPc.id}
+              value={`http://localhost:3000/pc/${data.getPc.id}`}
               level="H"
               id={data.getPc.id}
             />
@@ -89,7 +89,6 @@ const FETCH_PC_QUERY = gql`
       vlan
       ip
       createdAt
-      posiId
     }
   }
 `;

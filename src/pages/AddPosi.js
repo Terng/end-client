@@ -7,6 +7,9 @@ import {
   Button,
   Grid,
   Box,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@material-ui/core";
 import { createPosi, getposition } from "../ExQueries/Queries";
 import Dialog from "@material-ui/core/Dialog";
@@ -20,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     "& > *": {
       margin: theme.spacing(1),
-      width: 200,
+      width: 150,
     },
   },
 }));
@@ -30,6 +33,7 @@ function Add() {
   const [values, setValues] = useState({
     name: "",
     floor: "",
+    status: "",
   });
   const [errors, setErrors] = useState({});
 
@@ -105,6 +109,30 @@ function Add() {
                     value={values.floor}
                     onChange={onChange}
                   />
+                </FormControl>
+
+                <FormControl>
+                  <InputLabel id="select">Status</InputLabel>
+                  <Select
+                    labelId="simple-select"
+                    id="simple-select"
+                    value={values.status}
+                    onChange={onChange}
+                    type="text"
+                    name="status"
+                    placeholder="status"
+                    required
+                  >
+                    <MenuItem value={""} disabled>
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value="Active">
+                      <em>Active</em>
+                    </MenuItem>
+                    <MenuItem value="Maintenance">
+                      <em>Maintenance</em>
+                    </MenuItem>
+                  </Select>
                 </FormControl>
                 <FormControl>
                   <Button

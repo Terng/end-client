@@ -95,7 +95,7 @@ function PosinameUpd({ posiId }) {
         variant="outlined"
         color="primary"
         onClick={handleClickOpen}
-        startIcon={<EditIcon />}
+        /* startIcon={<EditIcon />} */
       >
         name
       </Button>

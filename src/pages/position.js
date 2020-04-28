@@ -6,6 +6,7 @@ import DeletePosi from "../Components/DeletePosi";
 import AddPosi from "../pages/AddPosi";
 import PosinameUpd from "../Components/Upd/posiname";
 import FloorUpd from "../Components/Upd/floor";
+import PMenus from "../Components/Upd/Pmenu";
 import { makeStyles, Box } from "@material-ui/core";
 import Xlsx from "../Components/Exportxlsx";
 
@@ -29,14 +30,19 @@ function PosiTable() {
       accessor: "floor",
     },
     {
+      Header: "Status",
+      accessor: "status",
+    },
+    {
       Header: "Action",
       accessor: "id",
       Cell: ({ cell: { value } }) => {
         return (
           <div className={classes.Button1}>
-            <DeletePosi posiId={value} />
-            <PosinameUpd posiId={value} />
-            <FloorUpd posiId={value} />
+            <PMenus posiId={value} />
+            {/* <DeletePosi posiId={value} /> */}
+            {/*             <PosinameUpd posiId={value} />
+            <FloorUpd posiId={value} /> */}
           </div>
         );
       },

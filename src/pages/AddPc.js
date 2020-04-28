@@ -35,14 +35,16 @@ function Add() {
     assettag: "",
     ip: "",
     vlan: "",
-    posiId: "",
+    status: "",
+    positionName: "",
+    positionFloor: "",
   });
   const [errors, setErrors] = useState({});
   const { data } = useQuery(getposition);
   const [posi, setPosi] = React.useState("");
   const onChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });
-    setPosi(e.target.value);
+    /* setPosi(e.target.value); */
   };
   const [open, setOpen] = React.useState(false);
 
@@ -160,25 +162,103 @@ function Add() {
                 </FormControl>
 
                 <FormControl>
-                  <InputLabel id="select">Position</InputLabel>
+                  <InputLabel id="select">Status</InputLabel>
                   <Select
                     labelId="simple-select"
                     id="simple-select"
-                    value={values.posiId}
+                    value={values.status}
                     onChange={onChange}
                     type="text"
-                    name="posiId"
-                    placeholder="Position ID"
+                    name="status"
+                    placeholder="status"
                     required
-                    error={errors.posiId ? true : false}
+                    error={errors.status ? true : false}
+                  >
+                    <MenuItem value={""} disabled>
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value="Active">
+                      <em>Active</em>
+                    </MenuItem>
+                    <MenuItem value="Expired">
+                      <em>Expired</em>
+                    </MenuItem>
+                    <MenuItem value="Scrap">
+                      <em>Scrap</em>
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+
+                {/* <FormControl>
+                  <InputLabel id="select">Position Name</InputLabel>
+                  <Select
+                    required
+                    id="standard-required"
+                    label="Position Name"
+                    placeholder="Position Name"
+                    name="positionName"
+                    value={values.positionName}
+                    error={errors.positionName ? true : false}
+                    onChange={onChange}
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <TextField
+                    required
+                    id="standard-required"
+                    label="Position Name"
+                    placeholder="Position Name"
+                    name="positionFloor"
+                    value={values.positionFloor}
+                    error={errors.positionFloor ? true : false}
+                    onChange={onChange}
+                  />
+                </FormControl> */}
+                <FormControl>
+                  <InputLabel id="select">Position Name</InputLabel>
+                  <Select
+                    labelId="simple-select"
+                    id="simple-select"
+                    value={values.positionName}
+                    onChange={onChange}
+                    type="text"
+                    name="positionName"
+                    placeholder="Position Name"
+                    required
+                    error={errors.positionName ? true : false}
                   >
                     <MenuItem value={""} disabled>
                       <em>None</em>
                     </MenuItem>
                     {data &&
                       data.getPosis.map((posi) => (
-                        <MenuItem value={posi.id} key={posi.id}>
-                          {posi.name} - {posi.floor}
+                        <MenuItem value={posi.name} key={posi.id}>
+                          {posi.name}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <InputLabel id="select">Position Name</InputLabel>
+                  <Select
+                    labelId="simple-select"
+                    id="simple-select"
+                    value={values.positionFloor}
+                    onChange={onChange}
+                    type="text"
+                    name="positionFloor"
+                    placeholder="Position Floor"
+                    required
+                    error={errors.positionFloor ? true : false}
+                  >
+                    <MenuItem value={""} disabled>
+                      <em>None</em>
+                    </MenuItem>
+                    {data &&
+                      data.getPosis.map((posi) => (
+                        <MenuItem value={posi.floor} key={posi.id}>
+                          {posi.floor}
                         </MenuItem>
                       ))}
                   </Select>

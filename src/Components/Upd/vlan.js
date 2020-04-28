@@ -96,7 +96,7 @@ function UpdVlan({ pcId }) {
   return (
     <React.Fragment key={data.getPc.id}>
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Edit Vlan
+        Vlan
       </Button>
       <Dialog
         open={open}

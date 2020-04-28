@@ -9,9 +9,11 @@ const getPcs = gql`
       assettag
       vlan
       ip
-      posiId
+      positionName
+      positionFloor
       createdAt
       modifyAt
+      status
     }
   }
 `;
@@ -22,6 +24,7 @@ const getposition = gql`
       id
       name
       floor
+      status
     }
   }
 `;
@@ -33,7 +36,9 @@ const createPc = gql`
     $assettag: String!
     $ip: String!
     $vlan: String!
-    $posiId: String!
+    $status: String!
+    $positionName: String!
+    $positionFloor: String!
   ) {
     createPc(
       input: {
@@ -42,7 +47,9 @@ const createPc = gql`
         assettag: $assettag
         ip: $ip
         vlan: $vlan
-        posiId: $posiId
+        status: $status
+        positionName: $positionName
+        positionFloor: $positionFloor
       }
     ) {
       id
@@ -51,18 +58,21 @@ const createPc = gql`
       assettag
       ip
       vlan
+      status
       createdAt
-      posiId
+      positionName
+      positionFloor
     }
   }
 `;
 
 const createPosi = gql`
-  mutation createPosi($name: String!, $floor: String!) {
-    createPosi(input: { name: $name, floor: $floor }) {
+  mutation createPosi($name: String!, $floor: String!, $status: String!) {
+    createPosi(input: { name: $name, floor: $floor, status: $status }) {
       id
       name
       floor
+      status
     }
   }
 `;
@@ -73,6 +83,7 @@ const getPosi = gql`
       id
       name
       floor
+      status
     }
   }
 `;

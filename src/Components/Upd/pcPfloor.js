@@ -2,23 +2,20 @@ import React, { useState } from "react";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "react-apollo";
 import {
-  TextField,
   Button,
   Typography,
-  Breadcrumbs,
   makeStyles,
-  Grid,
-  Link as PLink,
   FormControl,
-  Box,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
-
-import { useHistory } from "react-router-dom";
 
 import { getPcs } from "../../ExQueries/Queries";
 import Skeleton from "../Skeleton";
+import ShowPosi from "../../pages/showPosis";
 
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -36,45 +33,61 @@ const getPc = gql`
       vlan
       ip
       createdAt
-      posiId
+      status
+      positionName
+      positionFloor
     }
   }
 `;
 
-const UPDATE_IP_MUTA = gql`
-  mutation updateIp($pcId: ID!, $ip: String!) {
-    updateIp(pcId: $pcId, ip: $ip) {
+const UPDATE_PC_POSI_FLOOR = gql`
+  mutation updatePCPosiFloor($pcId: ID!, $positionFloor: String!) {
+    updatePCPosiFloor(pcId: $pcId, positionFloor: $positionFloor) {
       id
-      ip
+      positionFloor
     }
   }
 `;
-
+const getposition = gql`
+  {
+    getPosis {
+      id
+      name
+      floor
+    }
+  }
+`;
 const useStyles = makeStyles((theme) => ({
   errWidth: "100%",
   "& > * + *": {
     marginTop: theme.spacing(2),
   },
+  root: {
+    "& > *": {
+      margin: theme.spacing(1),
+      width: 200,
+    },
+  },
 }));
 
-function UpdIp({ pcId }) {
+function UpdPFloor({ pcId }) {
   const classes = useStyles();
-  const [state, setState] = React.useState({
-    open: false,
-    vertical: "top",
-    horizontal: "center",
-  });
   const [errors, setErrors] = useState({});
 
-  const history = useHistory();
-  function handleBreadcrumbs(e) {
-    e.preventDefault();
-    history.push("/list");
-  }
-  function handleBack(e) {
-    e.preventDefault();
-    history.push(`/pc/${data.getPc.id}`);
-  }
+  const { data } = useQuery(getposition);
+  const [posi_floor, setPosi] = React.useState("");
+  /*   const [value, setValue] = useState({
+    posiId: ""
+  }); */
+  const onChange = (e) => {
+    /*     setValue({ ...value, [e.target.name]: e.target.value });
+     */ setPosi(e.target.value);
+  };
+  const { data: pc_data, loading, error } = useQuery(getPc, {
+    variables: {
+      pcId,
+    },
+  });
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -84,12 +97,8 @@ function UpdIp({ pcId }) {
   const handleClose = () => {
     setOpen(false);
   };
-  const { data, loading, error } = useQuery(getPc, {
-    variables: {
-      pcId,
-    },
-  });
-  const [updateIp] = useMutation(UPDATE_IP_MUTA, {
+
+  const [updatePCPosiFloor] = useMutation(UPDATE_PC_POSI_FLOOR, {
     update(proxy, result) {
       console.log(result);
     },
@@ -97,15 +106,14 @@ function UpdIp({ pcId }) {
       setErrors(err.graphQLErrors[0].extensions.exception.errors);
     },
   });
-  let input;
   if (error)
     return (
       <div className={classes.errWidth}>
         <Alert severity="error">
           <AlertTitle>Error</AlertTitle>
           <p>
-            This PC <b>don't contain IP field</b> Or Can't Connect to database,
-            Please Contact<b> Administartor</b>
+            This PC <b>don't contain Position field</b> Or Can't Connect to
+            database, Please Contact<b> Administartor</b>
           </p>
         </Alert>
       </div>
@@ -113,9 +121,9 @@ function UpdIp({ pcId }) {
 
   if (loading) return <Skeleton />;
   return (
-    <React.Fragment key={data.getPc.id}>
+    <React.Fragment key={pc_data.getPc.id}>
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Ip
+        Position Floor
       </Button>
       <Dialog
         open={open}
@@ -124,10 +132,13 @@ function UpdIp({ pcId }) {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Update PC IP Address"}
+          {"Update PC Position Floor"}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
+            <Typography>
+              Position Floor : {pc_data.getPc.positionFloor}
+            </Typography>
             <Grid
               container
               spacing={0}
@@ -136,48 +147,41 @@ function UpdIp({ pcId }) {
               justify="center"
               align="center"
             >
-              <Typography>IP Address : {data.getPc.ip}</Typography>
               <form
+                className={classes.root}
                 onSubmit={(e) => {
                   e.preventDefault();
-                  updateIp(
-                    {
-                      variables: { pcId, ip: input.value },
-                      refetchQueries: [{ query: getPcs }],
-                    }
-                    /*   props.history.push("/list") */
-                  );
-
-                  input.value = "";
+                  updatePCPosiFloor({
+                    variables: { pcId, positionFloor: posi_floor },
+                    refetchQueries: [{ query: getPcs }],
+                  });
                 }}
               >
                 <FormControl>
-                  <TextField
+                  <InputLabel id="select">Position</InputLabel>
+                  <Select
+                    labelId="simple-select"
+                    id="simple-select"
+                    value={posi_floor}
+                    onChange={onChange}
+                    type="text"
+                    name="posiId"
+                    placeholder="Position Name"
                     required
-                    label="IP Address . . ."
-                    defaultValue={""}
-                    inputRef={(node) => {
-                      input = node;
-                    }}
-                    error={errors.name ? true : false}
-                  />
-                  <Button type="submit">Update Ip</Button>
+                  >
+                    <MenuItem value={""} disabled required>
+                      <em>None</em>
+                    </MenuItem>
+                    {data &&
+                      data.getPosis.map((posi) => (
+                        <MenuItem value={posi.floor} key={posi.id}>
+                          {posi.floor}
+                        </MenuItem>
+                      ))}
+                  </Select>
+                  <Button type="submit">Update Position FLOOR</Button>
                 </FormControl>
               </form>
-              {Object.keys(errors).length > 0 && (
-                <Alert severity="error">
-                  <AlertTitle>Error</AlertTitle>
-                  <div>
-                    {Object.values(errors).map((value) => (
-                      <Box display="flex" justifyContent="flex-start">
-                        <Box>
-                          <li key={value}>{value}</li>
-                        </Box>
-                      </Box>
-                    ))}
-                  </div>
-                </Alert>
-              )}
             </Grid>
           </DialogContentText>
         </DialogContent>
@@ -190,4 +194,4 @@ function UpdIp({ pcId }) {
     </React.Fragment>
   );
 }
-export default UpdIp;
+export default UpdPFloor;

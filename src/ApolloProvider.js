@@ -9,7 +9,7 @@ import { ApolloProvider as ApolloHooksProvider } from "@apollo/react-hooks";
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
-  uri: "https://arcane-plateau-26527.herokuapp.com/",
+  uri: "http://localhost:5000/",
 });
 const client = new ApolloClient({
   cache,

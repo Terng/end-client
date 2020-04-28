@@ -2,23 +2,21 @@ import React, { useState } from "react";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "react-apollo";
 import {
-  TextField,
   Button,
   Typography,
-  Breadcrumbs,
   makeStyles,
-  Grid,
-  Link as PLink,
   FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
   Box,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
-
-import { useHistory } from "react-router-dom";
 
 import { getPcs } from "../../ExQueries/Queries";
 import Skeleton from "../Skeleton";
+import ShowPosi from "../../pages/showPosis";
 
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -36,45 +34,56 @@ const getPc = gql`
       vlan
       ip
       createdAt
-      posiId
+      status
+      positionName
+      positionFloor
     }
   }
 `;
 
-const UPDATE_IP_MUTA = gql`
-  mutation updateIp($pcId: ID!, $ip: String!) {
-    updateIp(pcId: $pcId, ip: $ip) {
+const UPDATE_STATUS_NAME = gql`
+  mutation updateStatus($pcId: ID!, $status: String!) {
+    updateStatus(pcId: $pcId, status: $status) {
       id
-      ip
+      status
     }
   }
 `;
-
+const getposition = gql`
+  {
+    getPosis {
+      id
+      name
+      floor
+    }
+  }
+`;
 const useStyles = makeStyles((theme) => ({
   errWidth: "100%",
   "& > * + *": {
     marginTop: theme.spacing(2),
   },
+  root: {
+    "& > *": {
+      margin: theme.spacing(1),
+      width: 200,
+    },
+  },
 }));
 
-function UpdIp({ pcId }) {
+function UpdStatus({ pcId }) {
   const classes = useStyles();
-  const [state, setState] = React.useState({
-    open: false,
-    vertical: "top",
-    horizontal: "center",
-  });
   const [errors, setErrors] = useState({});
-
-  const history = useHistory();
-  function handleBreadcrumbs(e) {
-    e.preventDefault();
-    history.push("/list");
-  }
-  function handleBack(e) {
-    e.preventDefault();
-    history.push(`/pc/${data.getPc.id}`);
-  }
+  const [p_status, setStatus] = React.useState("");
+  const onChange = (e) => {
+    setStatus(e.target.value);
+    /* setStatus(e.target.value); */
+  };
+  const { data: pc_data, loading, error } = useQuery(getPc, {
+    variables: {
+      pcId,
+    },
+  });
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -84,12 +93,8 @@ function UpdIp({ pcId }) {
   const handleClose = () => {
     setOpen(false);
   };
-  const { data, loading, error } = useQuery(getPc, {
-    variables: {
-      pcId,
-    },
-  });
-  const [updateIp] = useMutation(UPDATE_IP_MUTA, {
+
+  const [updateStatus] = useMutation(UPDATE_STATUS_NAME, {
     update(proxy, result) {
       console.log(result);
     },
@@ -97,15 +102,18 @@ function UpdIp({ pcId }) {
       setErrors(err.graphQLErrors[0].extensions.exception.errors);
     },
   });
-  let input;
+  const onSubmit = (e) => {
+    e.preventDefault();
+    updateStatus();
+  };
   if (error)
     return (
       <div className={classes.errWidth}>
         <Alert severity="error">
           <AlertTitle>Error</AlertTitle>
           <p>
-            This PC <b>don't contain IP field</b> Or Can't Connect to database,
-            Please Contact<b> Administartor</b>
+            This PC <b>don't contain Position field</b> Or Can't Connect to
+            database, Please Contact<b> Administartor</b>
           </p>
         </Alert>
       </div>
@@ -113,9 +121,9 @@ function UpdIp({ pcId }) {
 
   if (loading) return <Skeleton />;
   return (
-    <React.Fragment key={data.getPc.id}>
+    <React.Fragment key={pc_data.getPc.id}>
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Ip
+        Status
       </Button>
       <Dialog
         open={open}
@@ -123,11 +131,10 @@ function UpdIp({ pcId }) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Update PC IP Address"}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{"Update Status"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
+            <Typography></Typography>
             <Grid
               container
               spacing={0}
@@ -136,48 +143,44 @@ function UpdIp({ pcId }) {
               justify="center"
               align="center"
             >
-              <Typography>IP Address : {data.getPc.ip}</Typography>
               <form
+                className={classes.root}
                 onSubmit={(e) => {
                   e.preventDefault();
-                  updateIp(
-                    {
-                      variables: { pcId, ip: input.value },
-                      refetchQueries: [{ query: getPcs }],
-                    }
-                    /*   props.history.push("/list") */
-                  );
-
-                  input.value = "";
+                  updateStatus({
+                    variables: { pcId, status: p_status },
+                    refetchQueries: [{ query: getPcs }],
+                  });
                 }}
               >
-                <FormControl>
-                  <TextField
+                <FormControl required>
+                  <InputLabel id="select">Status</InputLabel>
+                  <Select
+                    labelId="simple-select"
+                    id="simple-select"
+                    value={p_status}
+                    onChange={onChange}
+                    type="text"
+                    name="Status"
+                    placeholder="Status"
                     required
-                    label="IP Address . . ."
-                    defaultValue={""}
-                    inputRef={(node) => {
-                      input = node;
-                    }}
-                    error={errors.name ? true : false}
-                  />
-                  <Button type="submit">Update Ip</Button>
+                  >
+                    <MenuItem value={""} disabled>
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value="Active">
+                      <em>Active</em>
+                    </MenuItem>
+                    <MenuItem value="Expired">
+                      <em>Expired</em>
+                    </MenuItem>
+                    <MenuItem value="Scrap">
+                      <em>Scrap</em>
+                    </MenuItem>
+                  </Select>
+                  <Button type="submit">Update Position Name</Button>
                 </FormControl>
               </form>
-              {Object.keys(errors).length > 0 && (
-                <Alert severity="error">
-                  <AlertTitle>Error</AlertTitle>
-                  <div>
-                    {Object.values(errors).map((value) => (
-                      <Box display="flex" justifyContent="flex-start">
-                        <Box>
-                          <li key={value}>{value}</li>
-                        </Box>
-                      </Box>
-                    ))}
-                  </div>
-                </Alert>
-              )}
             </Grid>
           </DialogContentText>
         </DialogContent>
@@ -190,4 +193,4 @@ function UpdIp({ pcId }) {
     </React.Fragment>
   );
 }
-export default UpdIp;
+export default UpdStatus;

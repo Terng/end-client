@@ -10,31 +10,33 @@ import {
   TextField,
   TableBody,
   InputAdornment,
-  makeStyles
+  makeStyles,
+  Select,
+  MenuItem,
 } from "@material-ui/core";
 import { useTable, useSortBy, useFilters, useGlobalFilter } from "react-table";
 import matchSorter from "match-sorter";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
-    flexWrap: "wrap"
+    flexWrap: "wrap",
   },
   margin: {
-    margin: theme.spacing(0)
+    margin: theme.spacing(0),
   },
   withoutLabel: {
-    marginTop: theme.spacing(3)
+    marginTop: theme.spacing(3),
   },
   textField: {
-    width: "25ch"
-  }
+    width: "25ch",
+  },
 }));
 
 function GlobalFilter({
   preGlobalFilteredRows,
   globalFilter,
-  setGlobalFilter
+  setGlobalFilter,
 }) {
   const count = preGlobalFilteredRows.length;
   const classes = useStyles();
@@ -44,7 +46,7 @@ function GlobalFilter({
       <OutlinedInput
         id="outlined-adornment-amount"
         value={globalFilter || ""}
-        onChange={e => {
+        onChange={(e) => {
           setGlobalFilter(e.target.value || undefined); // Set undefined to remove the filter entirely
         }}
         startAdornment={
@@ -57,16 +59,48 @@ function GlobalFilter({
   );
 }
 
+function SelectColumnFilter({
+  column: { filterValue, setFilter, preFilteredRows, id },
+}) {
+  // Calculate the options for filtering
+  // using the preFilteredRows
+  const options = React.useMemo(() => {
+    const options = new Set();
+    preFilteredRows.forEach((row) => {
+      options.add(row.values[id]);
+    });
+    return [...options.values()];
+  }, [id, preFilteredRows]);
+
+  // Render a multi-select box
+  return (
+    <Select
+      labelId="demo-simple-select-label"
+      id="demo-simple-select"
+      value={filterValue}
+      onChange={(e) => {
+        setFilter(e.target.value || undefined);
+      }}
+    >
+      {options.map((option, i) => (
+        <MenuItem key={i} value={option}>
+          {option}
+        </MenuItem>
+      ))}
+    </Select>
+  );
+}
+
 // Define a default UI for filtering
 function DefaultColumnFilter({
-  column: { filterValue, preFilteredRows, setFilter }
+  column: { filterValue, preFilteredRows, setFilter },
 }) {
   const count = preFilteredRows.length;
 
   return (
     <TextField
       value={filterValue || ""}
-      onChange={e => {
+      onChange={(e) => {
         setFilter(e.target.value || undefined);
       }}
       placeholder={`Search ${count} records...`}
@@ -75,11 +109,11 @@ function DefaultColumnFilter({
 }
 
 function fuzzyTextFilterFn(rows, id, filterValue) {
-  return matchSorter(rows, filterValue, { keys: [row => row.values[id]] });
+  return matchSorter(rows, filterValue, { keys: [(row) => row.values[id]] });
 }
 
 // Let the table remove the filter if the string is empty
-fuzzyTextFilterFn.autoRemove = val => !val;
+fuzzyTextFilterFn.autoRemove = (val) => !val;
 
 function Table({ columns, data }) {
   // Use the state and functions returned from useTable to build your UI
@@ -90,7 +124,7 @@ function Table({ columns, data }) {
       // Or, override the default text filter to use
       // "startWith"
       text: (rows, id, filterValue) => {
-        return rows.filter(row => {
+        return rows.filter((row) => {
           const rowValue = row.values[id];
           return rowValue !== undefined
             ? String(rowValue)
@@ -98,7 +132,7 @@ function Table({ columns, data }) {
                 .startsWith(String(filterValue).toLowerCase())
             : true;
         });
-      }
+      },
     }),
     []
   );
@@ -106,7 +140,7 @@ function Table({ columns, data }) {
   const defaultColumn = React.useMemo(
     () => ({
       // Let's set up our default Filter UI
-      Filter: DefaultColumnFilter
+      Filter: DefaultColumnFilter,
     }),
     []
   );
@@ -118,13 +152,13 @@ function Table({ columns, data }) {
     prepareRow,
     state,
     preGlobalFilteredRows,
-    setGlobalFilter
+    setGlobalFilter,
   } = useTable(
     {
       columns,
       data,
       defaultColumn,
-      filterTypes
+      filterTypes,
     },
     useFilters, // useFilters!
     useGlobalFilter, // useGlobalFilter!
@@ -132,7 +166,7 @@ function Table({ columns, data }) {
   );
   // Render the UI for your table
   return (
-    <div>
+    <React.Fragment>
       <div>
         <GlobalFilter
           preGlobalFilteredRows={preGlobalFilteredRows}
@@ -140,66 +174,68 @@ function Table({ columns, data }) {
           setGlobalFilter={setGlobalFilter}
         />
       </div>
-      <MaUTable {...getTableProps()}>
-        <TableHead>
-          {headerGroups.map(headerGroup => (
-            <TableRow {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <TableCell
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                >
-                  {column.render("Header")}
-                  <span>
-                    {column.isSorted
-                      ? column.isSortedDesc
-                        ? " 🔽"
-                        : " 🔼"
-                      : ""}
-                  </span>
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-          {headerGroups.map(headerGroup => (
-            <TableRow {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <TableCell {...column.getHeaderProps()}>
-                  {column.canFilter ? column.render("Filter") : null}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableHead>
-        <TableBody>
-          {rows.map((row, i) => {
-            prepareRow(row);
-            return (
-              <TableRow {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  return (
-                    <TableCell {...cell.getCellProps()}>
-                      {cell.render("Cell")}
-                    </TableCell>
-                  );
-                })}
+      <div>
+        <MaUTable {...getTableProps()}>
+          <TableHead>
+            {headerGroups.map((headerGroup) => (
+              <TableRow {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <TableCell
+                    {...column.getHeaderProps(column.getSortByToggleProps())}
+                  >
+                    {column.render("Header")}
+                    <span>
+                      {column.isSorted
+                        ? column.isSortedDesc
+                          ? " 🔽"
+                          : " 🔼"
+                        : ""}
+                    </span>
+                  </TableCell>
+                ))}
               </TableRow>
-            );
-          })}
-        </TableBody>
-        {/*       <div>
+            ))}
+            {headerGroups.map((headerGroup) => (
+              <TableRow {...headerGroup.getHeaderGroupProps()}>
+                {headerGroup.headers.map((column) => (
+                  <TableCell {...column.getHeaderProps()}>
+                    {column.canFilter ? column.render("Filter") : null}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {rows.map((row, i) => {
+              prepareRow(row);
+              return (
+                <TableRow {...row.getRowProps()}>
+                  {row.cells.map((cell) => {
+                    return (
+                      <TableCell {...cell.getCellProps()}>
+                        {cell.render("Cell")}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+          {/*       <div>
         <pre>
           <code>{JSON.stringify(state.filters, null, 2)}</code>
         </pre>
       </div> */}
-      </MaUTable>
-    </div>
+        </MaUTable>
+      </div>
+    </React.Fragment>
   );
 }
 export default Table;
 
 // Define a custom filter filter function!
 function filterGreaterThan(rows, id, filterValue) {
-  return rows.filter(row => {
+  return rows.filter((row) => {
     const rowValue = row.values[id];
     return rowValue >= filterValue;
   });
@@ -209,4 +245,4 @@ function filterGreaterThan(rows, id, filterValue) {
 // when given the new filter value and returns true, the filter
 // will be automatically removed. Normally this is just an undefined
 // check, but here, we want to remove the filter if it's not a number
-filterGreaterThan.autoRemove = val => typeof val !== "number";
+filterGreaterThan.autoRemove = (val) => typeof val !== "number";

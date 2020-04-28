@@ -19,14 +19,19 @@ import { Link as PLink } from "@material-ui/core";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import ComputerIcon from "@material-ui/icons/Computer";
 import { grey } from "@material-ui/core/colors";
+import Menu from "../Components/Upd/Menu";
 import GenQR from "../Components/QRCode";
 import ShowPosi from "./showPosis";
 import NameUpd from "../Components/Upd/name";
 import VlanUpd from "../Components/Upd/vlan";
 import PosiUpd from "../Components/Upd/posi";
 import IpUpd from "../Components/Upd/Ip";
+import UpdPName from "../Components/Upd/pcPname";
+import UpdPFloor from "../Components/Upd/pcPfloor";
 import QRCode from "qrcode.react";
+import UpdStatus from "../Components/Upd/status";
 import Xlsx from "../Components/Exportxlsx";
+import Delete from "../Components/Delete";
 const useStyles = makeStyles((theme) => ({
   root: {
     "& > * + *": {
@@ -145,13 +150,15 @@ function ShowPc(props) {
           </Box>
           <Divider variant="fullWidth" className={classes.divider1} />
           <Grid container>
-            <Grid item xs={1}>
+            <Grid item xs={2}>
               <Typography>PC Name</Typography>
               <Typography>Service Tag</Typography>
               <Typography>Asset Tag</Typography>
               <Typography>IP Address</Typography>
               <Typography>VLAN</Typography>
-              <Typography>Position</Typography>
+              <Typography>Status</Typography>
+              <Typography>Position Name</Typography>
+              <Typography>Position Floor</Typography>
             </Grid>
             <Grid item xs={4}>
               <Typography>{data.getPc.name}</Typography>
@@ -159,7 +166,9 @@ function ShowPc(props) {
               <Typography>{data.getPc.assettag}</Typography>
               <Typography>{data.getPc.ip}</Typography>
               <Typography>{data.getPc.vlan}</Typography>
-              <ShowPosi posiId={data.getPc.posiId} />
+              <Typography>{data.getPc.status}</Typography>
+              <Typography>{data.getPc.positionName}</Typography>
+              <Typography>{data.getPc.positionFloor}</Typography>
             </Grid>
             <Grid
               container
@@ -173,17 +182,25 @@ function ShowPc(props) {
               display="flex"
               justifyContent="center"
             >
-              <QRCode size={256} value={data.getPc.id} level="H" />
+              <QRCode
+                size={256}
+                value={`http://localhost:3000/pc/${data.getPc.id}`}
+                level="H"
+              />
             </Grid>
           </Grid>
           <Box display="inline" className={classes.Button1}>
-            <NameUpd pcId={data.getPc.id} />
+            <Menu pcId={data.getPc.id} />
+            {/*             <NameUpd pcId={data.getPc.id} />
             <VlanUpd pcId={data.getPc.id} />
             <IpUpd pcId={data.getPc.id} />
-            <PosiUpd pcId={data.getPc.id} />
+            <UpdPName pcId={data.getPc.id} />
+            <UpdPFloor pcId={data.getPc.id} />
+            <UpdStatus pcId={data.getPc.id} /> */}
           </Box>
         </Box>
       </Container>
+      <Delete pcId={data.getPc.id} />
     </React.Fragment>
   );
 }
@@ -197,7 +214,9 @@ const FETCH_PC_QUERY = gql`
       vlan
       ip
       createdAt
-      posiId
+      status
+      positionName
+      positionFloor
     }
   }
 `;

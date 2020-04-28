@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
 function Home() {
   const classes = useStyles;
   const { data, loading, error, refetch } = useQuery(getPcs);
+  /*   const handlefetch = useQuery({
+    refetchQueries: [{ query: getPcs }],
+  }); */
   if (loading)
     return (
       <div>

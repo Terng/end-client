@@ -115,7 +115,7 @@ function UpdName({ pcId }) {
   return (
     <React.Fragment key={data.getPc.id}>
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-        Edit name
+        Name
       </Button>
       <Dialog
         open={open}

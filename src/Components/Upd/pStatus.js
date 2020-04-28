@@ -2,25 +2,22 @@ import React, { useState } from "react";
 import gql from "graphql-tag";
 import { useQuery, useMutation } from "react-apollo";
 import {
-  TextField,
   Button,
   Typography,
-  Breadcrumbs,
   makeStyles,
-  Grid,
-  Link as PLink,
   FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Grid,
   Box,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
-import NavigateNextIcon from "@material-ui/icons/NavigateNext";
-
-import { useHistory } from "react-router-dom";
 
 import { getPosi, getposition } from "../../ExQueries/Queries";
-import CircularProgress from "@material-ui/core/CircularProgress";
-
-import EditIcon from "@material-ui/icons/Edit";
+import Skeleton from "../Skeleton";
+import ShowPosi from "../../pages/showPosis";
+import { useHistory } from "react-router-dom";
 
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -28,26 +25,11 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
-const getPc = gql`
-  query($pcId: ID!) {
-    getPc(pcId: $pcId) {
+const UPDATE_STATUS_POSI = gql`
+  mutation updatePosiStatus($posiId: ID!, $status: String!) {
+    updatePosiStatus(posiId: $posiId, status: $status) {
       id
-      name
-      sertag
-      assettag
-      vlan
-      ip
-      createdAt
-      posiId
-    }
-  }
-`;
-
-const UPDATE_FLOOR_MUTA = gql`
-  mutation updatePosiFloor($posiId: ID!, $floor: String!) {
-    updatePosiFloor(posiId: $posiId, floor: $floor) {
-      id
-      floor
+      status
     }
   }
 `;
@@ -57,16 +39,22 @@ const useStyles = makeStyles((theme) => ({
   "& > * + *": {
     marginTop: theme.spacing(2),
   },
+  root: {
+    "& > *": {
+      margin: theme.spacing(1),
+      width: 200,
+    },
+  },
 }));
 
-function FloorUpd({ posiId }) {
+function UpdStatus({ posiId }) {
   const classes = useStyles();
-  const [state, setState] = React.useState({
-    open: false,
-    vertical: "top",
-    horizontal: "center",
-  });
   const [errors, setErrors] = useState({});
+  const [p_status, setStatus] = React.useState("");
+  const onChange = (e) => {
+    setStatus(e.target.value);
+    /* setStatus(e.target.value); */
+  };
 
   const history = useHistory();
   const [open, setOpen] = React.useState(false);
@@ -83,7 +71,8 @@ function FloorUpd({ posiId }) {
       posiId,
     },
   });
-  const [updatePosiFloor] = useMutation(UPDATE_FLOOR_MUTA, {
+
+  const [updatePosiStatus] = useMutation(UPDATE_STATUS_POSI, {
     update(proxy, result) {
       console.log(result);
     },
@@ -91,29 +80,24 @@ function FloorUpd({ posiId }) {
       setErrors(err.graphQLErrors[0].extensions.exception.errors);
     },
   });
-  let input;
   if (error)
     return (
       <div className={classes.errWidth}>
         <Alert severity="error">
           <AlertTitle>Error</AlertTitle>
           <p>
-            Can't Connect to database, Please Contact<b> Administartor</b>
+            This PC <b>don't contain Position field</b> Or Can't Connect to
+            database, Please Contact<b> Administartor</b>
           </p>
         </Alert>
       </div>
     );
 
-  if (loading) return <CircularProgress color="secondary" />;
+  if (loading) return <Skeleton />;
   return (
     <React.Fragment key={data.getPosi.id}>
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={handleClickOpen}
-        /* startIcon={<EditIcon />} */
-      >
-        Floor
+      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+        Status
       </Button>
       <Dialog
         open={open}
@@ -121,11 +105,10 @@ function FloorUpd({ posiId }) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Update Position Floor"}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{"Update Status"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
+            <Typography>Status : {data.getPosi.status}</Typography>
             <Grid
               container
               spacing={0}
@@ -134,45 +117,41 @@ function FloorUpd({ posiId }) {
               justify="center"
               align="center"
             >
-              <Typography>Floor : {data.getPosi.floor}</Typography>
               <form
+                className={classes.root}
                 onSubmit={(e) => {
                   e.preventDefault();
-                  updatePosiFloor({
-                    variables: { posiId, floor: input.value },
+                  updatePosiStatus({
+                    variables: { posiId, status: p_status },
                     refetchQueries: [{ query: getposition }],
                   });
-
-                  input.value = "";
                 }}
               >
-                <FormControl>
-                  <TextField
+                <FormControl required>
+                  <InputLabel id="select">Status</InputLabel>
+                  <Select
+                    labelId="simple-select"
+                    id="simple-select"
+                    value={p_status}
+                    onChange={onChange}
+                    type="text"
+                    name="Status"
+                    placeholder="Status"
                     required
-                    label="Floor . . ."
-                    defaultValue={""}
-                    inputRef={(node) => {
-                      input = node;
-                    }}
-                    error={errors.floor ? true : false}
-                  />
-                  <Button type="submit">Update Floor</Button>
+                  >
+                    <MenuItem value={""} disabled>
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem value="Active">
+                      <em>Active</em>
+                    </MenuItem>
+                    <MenuItem value="Maintenance">
+                      <em>Maintenance</em>
+                    </MenuItem>
+                  </Select>
+                  <Button type="submit">Update Position Name</Button>
                 </FormControl>
               </form>
-              {Object.keys(errors).length > 0 && (
-                <Alert severity="error">
-                  <AlertTitle>Error</AlertTitle>
-                  <div>
-                    {Object.values(errors).map((value) => (
-                      <Box display="flex" justifyContent="flex-start">
-                        <Box>
-                          <li key={value}>{value}</li>
-                        </Box>
-                      </Box>
-                    ))}
-                  </div>
-                </Alert>
-              )}
             </Grid>
           </DialogContentText>
         </DialogContent>
@@ -185,4 +164,4 @@ function FloorUpd({ posiId }) {
     </React.Fragment>
   );
 }
-export default FloorUpd;
+export default UpdStatus;
