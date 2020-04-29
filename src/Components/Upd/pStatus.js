@@ -149,7 +149,7 @@ function UpdStatus({ posiId }) {
                       <em>Maintenance</em>
                     </MenuItem>
                   </Select>
-                  <Button type="submit">Update Position Name</Button>
+                  <Button type="submit">Update Position Status</Button>
                 </FormControl>
               </form>
             </Grid>
