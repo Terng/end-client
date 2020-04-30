@@ -10,6 +10,7 @@ import {
   Select,
   MenuItem,
   Grid,
+  Box,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 
@@ -168,6 +169,7 @@ function UpdPName({ pcId }) {
                     name="posiId"
                     placeholder="Position Name"
                     required
+                    error={errors.status ? true : false}
                   >
                     <MenuItem value={""} disabled required>
                       <em>None</em>
@@ -182,6 +184,20 @@ function UpdPName({ pcId }) {
                   <Button type="submit">Update Position Name</Button>
                 </FormControl>
               </form>
+              {Object.keys(errors).length > 0 && (
+                <Alert severity="error">
+                  <AlertTitle>Error</AlertTitle>
+                  <div>
+                    {Object.values(errors).map((value) => (
+                      <Box display="flex" justifyContent="flex-start">
+                        <Box>
+                          <li key={value}>{value}</li>
+                        </Box>
+                      </Box>
+                    ))}
+                  </div>
+                </Alert>
+              )}
             </Grid>
           </DialogContentText>
         </DialogContent>
