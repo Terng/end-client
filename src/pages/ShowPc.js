@@ -184,7 +184,7 @@ function ShowPc(props) {
             >
               <QRCode
                 size={256}
-                value={`http://localhost:3000/pc/${data.getPc.id}`}
+                value={`https://terng-preview.netlify.app/pc/${data.getPc.id}`}
                 level="H"
               />
             </Grid>
