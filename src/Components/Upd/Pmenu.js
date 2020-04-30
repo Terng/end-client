@@ -1,7 +1,6 @@
 import React from "react";
 import { useQuery } from "@apollo/react-hooks";
 import gql from "graphql-tag";
-
 import {
   Menu,
   MenuItem,
@@ -16,18 +15,19 @@ import IpUpd from "../Upd/Ip";
 import UpdPName from "../Upd/pcPname";
 import UpdPFloor from "../Upd/pcPfloor";
 import UpdStatus from "../Upd/status";
-import { getPosi, getposition } from "../../ExQueries/Queries";
+import { getPosi, getPcs } from "../../ExQueries/Queries";
 import PosinameUpd from "../Upd/posiname";
 import FloorUpd from "../Upd/floor";
 import StatusUpd from "../Upd/pStatus";
+
 function PMenus({ posiId }) {
+  const { data: pc_data } = useQuery(getPcs);
   const { data, loading, error } = useQuery(getPosi, {
     variables: {
       posiId,
     },
   });
   const [anchorEl, setAnchorEl] = React.useState(null);
-
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -37,6 +37,7 @@ function PMenus({ posiId }) {
   };
   if (loading) return <p>loading...</p>;
   if (error) return <p>error</p>;
+
   return (
     <div>
       <IconButton

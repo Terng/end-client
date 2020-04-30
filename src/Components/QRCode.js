@@ -57,7 +57,7 @@ function GenQR({ pcId }) {
           <DialogContentText id="alert-dialog-description">
             <QRCode
               size={512}
-              value={`https://terng-preview.netlify.app/pc/${data.getPc.id}`}
+              value={`http://localhost:3000/pc/${data.getPc.id}`}
               level="H"
               id={data.getPc.id}
             />

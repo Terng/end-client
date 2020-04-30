@@ -10,6 +10,7 @@ import {
   Select,
   MenuItem,
   Grid,
+  TextField,
 } from "@material-ui/core";
 import { Alert, AlertTitle } from "@material-ui/lab";
 
@@ -120,6 +121,7 @@ function UpdPFloor({ pcId }) {
     );
 
   if (loading) return <Skeleton />;
+  let input;
   return (
     <React.Fragment key={pc_data.getPc.id}>
       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
@@ -152,33 +154,21 @@ function UpdPFloor({ pcId }) {
                 onSubmit={(e) => {
                   e.preventDefault();
                   updatePCPosiFloor({
-                    variables: { pcId, positionFloor: posi_floor },
+                    variables: { pcId, positionFloor: input.value },
                     refetchQueries: [{ query: getPcs }],
                   });
                 }}
               >
                 <FormControl>
-                  <InputLabel id="select">Position</InputLabel>
-                  <Select
-                    labelId="simple-select"
-                    id="simple-select"
-                    value={posi_floor}
-                    onChange={onChange}
-                    type="text"
-                    name="posiId"
-                    placeholder="Position Name"
+                  <TextField
                     required
-                  >
-                    <MenuItem value={""} disabled required>
-                      <em>None</em>
-                    </MenuItem>
-                    {data &&
-                      data.getPosis.map((posi) => (
-                        <MenuItem value={posi.floor} key={posi.id}>
-                          {posi.floor}
-                        </MenuItem>
-                      ))}
-                  </Select>
+                    label="Name . . ."
+                    defaultValue={""}
+                    inputRef={(node) => {
+                      input = node;
+                    }}
+                  />
+
                   <Button type="submit">Update Position FLOOR</Button>
                 </FormControl>
               </form>

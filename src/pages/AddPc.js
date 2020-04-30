@@ -240,7 +240,7 @@ function Add() {
                   </Select>
                 </FormControl>
                 <FormControl>
-                  <InputLabel id="select">Position Floor</InputLabel>
+                  <InputLabel id="select">Position Name</InputLabel>
                   <Select
                     labelId="simple-select"
                     id="simple-select"

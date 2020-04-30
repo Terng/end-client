@@ -1,5 +1,5 @@
 import React from "react";
-import { getposition } from "../ExQueries/Queries";
+import { getposition, getPcs } from "../ExQueries/Queries";
 import { useQuery } from "react-apollo";
 import Table2 from "../Components/Table/Table2";
 import DeletePosi from "../Components/DeletePosi";
@@ -49,7 +49,6 @@ function PosiTable() {
     },
   ]; /* ) */
   const { data, loading, error } = useQuery(getposition);
-
   if (error) return <p>error</p>;
   if (loading) return <p>loading ...</p>;
   return (

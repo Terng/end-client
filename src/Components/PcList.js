@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
     width: "25ch",
   },
   formControl: {
-    minWidth: 100,
+    minWidth: 60,
   },
 }));
 
@@ -126,7 +126,7 @@ function SelectColumnFilter({
   // Render a multi-select box
   return (
     <FormControl className={classes.formControl}>
-      <InputLabel id="demo-simple-select-label">Status</InputLabel>
+      <InputLabel id="demo-simple-select-label">Filter</InputLabel>
       <Select
         labelId="demo-simple-select-label"
         id="demo-simple-select"
@@ -303,7 +303,6 @@ filterGreaterThan.autoRemove = (val) => typeof val !== "number";
 
 function PcList() {
   const { loading, data, error } = useQuery(getPcs);
-
   const columns = /* useMemo(() => */ [
     {
       Header: "Name",
@@ -324,6 +323,12 @@ function PcList() {
     {
       Header: "IP Address",
       accessor: "ip",
+    },
+    {
+      Header: "Position",
+      accessor: "positionName",
+      Filter: SelectColumnFilter,
+      filter: "includes",
     },
     {
       Header: "Status",

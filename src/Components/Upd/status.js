@@ -178,7 +178,7 @@ function UpdStatus({ pcId }) {
                       <em>Scrap</em>
                     </MenuItem>
                   </Select>
-                  <Button type="submit">Update Position Name</Button>
+                  <Button type="submit">Update Status</Button>
                 </FormControl>
               </form>
             </Grid>
