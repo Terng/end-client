@@ -240,7 +240,7 @@ function Add() {
                   </Select>
                 </FormControl>
                 <FormControl>
-                  <InputLabel id="select">Position Name</InputLabel>
+                  <InputLabel id="select">Position Floor</InputLabel>
                   <Select
                     labelId="simple-select"
                     id="simple-select"
@@ -250,7 +250,6 @@ function Add() {
                     name="positionFloor"
                     placeholder="Position Floor"
                     required
-                    error={errors.positionFloor ? true : false}
                   >
                     <MenuItem value={""} disabled>
                       <em>None</em>
